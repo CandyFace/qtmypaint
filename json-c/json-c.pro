@@ -32,6 +32,17 @@ SOURCES += arraylist.c \
            printbuf.c \
            random_seed.c
 
+# HACK: Copy config.h that fits the respective platform, created by configure in another build
+macx:unix {
+    system($$QMAKE_COPY $${PWD}/config/macxunix/config.h $${PWD}/ $$escape_expand(\\n))
+    QMAKE_CLEAN += -r $${PWD}/config.h
+}
+
+win32 {
+    system($$QMAKE_COPY $${PWD}\\config\\win32\\config.h $${PWD}\\ $$escape_expand(\\n))
+    QMAKE_CLEAN += -r $${PWD}\\config.h
+}
+
 # for C files, we need to allow C99 mode.
 QMAKE_CFLAGS += -std=c99
 QMAKE_CFLAGS += -D_XOPEN_SOURCE=600
