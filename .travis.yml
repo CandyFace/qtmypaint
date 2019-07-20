@@ -36,7 +36,7 @@ before_install:
   - |
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
         brew update;
-        ver=$(python -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/');
+        ver=$(python -V 2>&1 | sed "s/.* \([0-9]\).\([0-9]\).*/\1\2/");
         python -V
         if [ "$ver" -le "27" ]; then
             brew upgrade python;
@@ -44,6 +44,10 @@ before_install:
         brew install p7zip;
         brew install qt;
         brew link qt --force;
+    fi
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
+      sudo apt-get install -y p7zip-full; 
     fi
 
 install:
@@ -63,27 +67,30 @@ script:
   - make
 
 env:
-  global: 
-    secure: XXYLS56gC/wIQ6uY+DyEkDKSV8hKocWLjMFXw7zKMYrMn46Dfbauw4m2d04BwJE91fUZ9iJPUya8Hv6lfU/dqiTHG5Zn4hEg9dmqA9tQw9J3FLkYqBfbfzcYoANI5fxwS0UME+FF7OZBOaMvvtlw1PJuJqxW6gXbZ3WWBnf0NjXDs345d18KSqLBCeoiamp9ugX3Fut5OoUUu8PkfO8dmnZ3g1DL8v7oZ5mhrpXjFd5ykbSl2cK9xTT/XeW6oL1YXopcqBLaeoj7dj0YoeXripw3vik+/Sf+P6B1jtW7k+i5AsUvZ2mwlGvFBl2B3x+YpuEd5pN15J9xD7I64vWmXcuG9ZfT8c+vJuVoKYO6LiZugsU0JQ6aZBGZfPOr62gyjKKZyc1LcQPW6VQ+nijqMqkdtbz5Xh0D/RUVzYcnKjgb0Ht1E0O3BTEz6QBlrroA7oFjhnWhd9apQAJtQVCjzXFdXHRHnQEk+WAmaU927w+dKqWdklNtKGeTdnIbTRuLGyNdpDcpWD+7fx6/diNZExU7JSPiqbSdMN9FZlmT3BrbdrFwfrTVPjWyfxvYb/9S/iIHwF8lbf3pvVe3/mmhz4Wr/ZkwzVONiYzwif3anPx1wVLv5tMa4AIAJaer1aiAIHzBp7r1mTuFIr7ST0XmkR9DraKgfAu/IxDiUPmzfNk=
+  global:
+    secure: LnLne9hTgdkgScA7gLnmS+ApP2WZ7D7Qa2ElRU2aP6cQsajNuPlDd40zicq3ef6yLdZWzzPGPFL1yZSWLfSEA8UTsUSZMprMYlOUIite0d7OPxoURyFREoZyCUsb+MULnKhpVEElyKpftR6qXLikofw6mnw5rkcPZAVSpOqKt8uKWQMUBT0Djba9jNKKtlmARc5MibvXbxyvZPFSgGftvbDJEDl+vqbjuGiiwGkQQP2OIJBjvo+lSu/dRg9WTEvqjH8ek/JIE9GiBUxlFdMVqf2hW+gFOXr/jAJn9wXiz8ib9aRbbYbMgalEjp3cyzuGQWHSNLLSN/SSnqVeCmrv0YZS4S+34C7dnjnFuMATEfJFaV8iIriS28gKawMSg7iHQImnCyxEFSj+LUcj7nqSZmGVg6euH2jr3HLzWZFGOdojEsJuvPyXF+6BPAKHLomCtVcX8wy3vIayaTxgPpSN2qWCWmMdq+jCs5xdspC4bR/VuHq8UIRwF7M2+x/M0rHdRTxrzWXLpFImOd7CP+6eGyA2w/hP08t2LBp7AeTIIAlCaKweixEahnKHYbIkivN8aTTqAZf3shPWFLxzkvllE1ua6MlkGQCphZVA4S0x3+G5Kw+c7Nh9YUGUrzCcETiPfZWyiQfTvggiKQ5+nw2dNvif/4vpmivw6+YF4RKEAtY=
 
 after_success:
-  - 7z a -r qtmypaint-${TRAVIS_OS_NAME}.zip ${TRAVIS_BUILD_DIR}/src*.a;
+  - cd ${TRAVIS_BUILD_DIR}/build
+  - ls src/*.a
+  - 7z a -r qtmypaint-${TRAVIS_OS_NAME}.zip src/*.a $ src/*.lib
 
 before_deploy:
-  - export RELEASE_PKG_FILE=$(ls $TRAVIS_BUILD_DIR/*.zip)
+  - export RELEASE_PKG_FILE=$(ls ${TRAVIS_BUILD_DIR}/build/*.zip)
   - echo "deploying $RELEASE_PKG_FILE to GitHub releases"
 
   # Set up git user name and tag this commit
-  - git config --local user.name "TRAVIS_CI"
-  - git config --local user.email ""
+  - git config --local user.name "TRAVIS CI"
+  - git config --local user.email "travis-ci@travis.org"
   - export TRAVIS_TAG="qtmypaint-${TRAVIS_BRANCH}"
   - git tag $TRAVIS_TAG
 deploy:
   provider: releases
-  api_key: "$GITHUB_TOKEN"
+  api_key: "$DEPLOYER_TOKEN"
   file_glob: true
   file: ${RELEASE_PKG_FILE}
   skip_cleanup: true
+  overwrite: true
   draft: true
   on:
     all_branches: true
