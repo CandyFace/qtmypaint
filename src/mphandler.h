@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MPHANDLER_H
 
 #include <QColor>
+#include <memory>
 
 extern "C" {
 #include "mypaint-brush.h"
@@ -45,6 +46,7 @@ extern "C" {
 #define QTMYPAINT_SURFACE_HEIGHT 100
 #endif
 
+class QPixmap;
 
 class MPHandler : public QObject
 {
@@ -58,26 +60,29 @@ public:
     typedef void (*MPOnUpdateFunction) (MPHandler *handler, MPSurface *surface, MPTile *tile);
 
     void startStroke();
-    void strokeTo(float x, float y, float pressure, float xtilt, float ytilt);
-    void strokeTo(float x, float y);
+    void strokeTo(double x, double y, float pressure, float xtilt, float ytilt, double dtime);
+    void strokeTo(double x, double y);
     void endStroke();
 
     float getBrushValue(MyPaintBrushSetting setting);
 
     void setBrushColor(QColor newColor);
     void setBrushValue(MyPaintBrushSetting setting, float value);
+    void setBrushWidth(float width);
 
     void requestUpdateTile(MPSurface *surface, MPTile *tile);
     void hasNewTile(MPSurface *surface, MPTile *tile);
     void hasClearedSurface(MPSurface *surface);
+    void refreshSurface();
 
     void setSurfaceSize(QSize size);
     QSize surfaceSize();
 
     void clearSurface();
-    QImage renderImage();
 
     void loadImage(const QImage &image);
+    void loadTiles(const QList<std::shared_ptr<QPixmap> > &pixmaps, const QList<QPoint>& pos);
+    void loadTile(const QPixmap& pixmap, const QPoint pos);
 
 
 public slots:

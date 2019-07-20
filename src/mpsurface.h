@@ -28,19 +28,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MPSURFACE_H
 #define MPSURFACE_H
 
+#include <memory>
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <QGraphicsScene>
 #include <QImage>
+#include <QHash>
 
 extern "C" {
 #include "mypaint-glib-compat.h"
 #include "mypaint-tiled-surface.h"
 }
+
 #include "mpbrush.h"
 #include "mptile.h"
 
@@ -58,6 +61,12 @@ public:
     int getWidth();
     int getHeight();
 
+    void loadTile(const QPixmap& pixmap, const QPoint& position);
+    void loadTiles(const QList<std::shared_ptr<QPixmap> > &pixmaps, const QList<QPoint> &positions);
+
+    void setTilesWidth(int newWidth) { tiles_width = newWidth; }
+    void setTilesHeight(int newHeight) { tiles_height = newHeight; }
+
     enum { k_center = 50, k_max = 2*k_center};
 
     MPTile* getTileFromPos(const QPoint& pos);
@@ -73,6 +82,7 @@ public:
     void setOnUpdateTile(MPOnUpdateTileFunction onUpdateTileFunction);
     void setOnNewTile(MPOnUpdateTileFunction onNewTileFunction);
     void setOnClearedSurface(MPOnUpdateSurfaceFunction onNewTileFunction);
+    void refreshSurface();
 
     MPOnUpdateTileFunction onUpdateTileFunction;
     MPOnUpdateTileFunction onNewTileFunction;
@@ -82,7 +92,6 @@ public:
     QSize size();
 
     void clear();
-    QImage renderImage();
 
     void loadImage(const QImage &image);
 

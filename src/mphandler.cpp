@@ -26,6 +26,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "mphandler.h"
 
+#include <QVector>
+#include <QPixmap>
+
+#include <qdebug.h>
+
 extern "C" {
 #include "libmypaint.c"
 }
@@ -116,15 +121,14 @@ QSize MPHandler::surfaceSize()
     return m_surface->size();
 }
 
+void MPHandler::refreshSurface()
+{
+    m_surface->refreshSurface();
+}
+
 void MPHandler::clearSurface()
 {
     m_surface->clear();
-}
-
-QImage MPHandler::renderImage()
-{
-    QImage image = m_surface->renderImage();
-    return image;
 }
 
 void MPHandler::loadImage(const QImage &image)
@@ -132,19 +136,42 @@ void MPHandler::loadImage(const QImage &image)
     m_surface->loadImage(image);
 }
 
+void MPHandler::loadTile(const QPixmap& pixmap, const QPoint pos)
+{
+    m_surface->loadTile(pixmap, pos);
+}
+
+void MPHandler::loadTiles(const QList<std::shared_ptr<QPixmap>>& pixmaps, const QList<QPoint>& pos)
+{
+    m_surface->loadTiles(pixmaps, pos);
+}
+
 void MPHandler::loadBrush(const QByteArray &content)
 {
     m_brush->load(content);
 }
 
-void
-MPHandler::strokeTo(float x, float y, float pressure, float xtilt, float ytilt)
+void MPHandler::setBrushWidth(float width)
 {
-    float dtime = 1.0/10;
-    mypaint_surface_begin_atomic((MyPaintSurface *)m_surface);
-    mypaint_brush_stroke_to(m_brush->brush, (MyPaintSurface *)m_surface, x, y, pressure, xtilt, ytilt, dtime);
+    m_brush->setWidth(width);
+}
+
+void
+MPHandler::
+strokeTo(double x, double y, float pressure, float xtilt, float ytilt, double dtime)
+{
+    auto surface = reinterpret_cast<MyPaintSurface*>(m_surface);
+
+    mypaint_surface_begin_atomic(surface);
+    mypaint_brush_stroke_to(m_brush->brush, surface,
+                            static_cast<float>(x),
+                            static_cast<float>(y),
+                            pressure,
+                            xtilt,
+                            ytilt,
+                            dtime/*, 1.0, 1.0, .0*/);
     MyPaintRectangle roi;
-    mypaint_surface_end_atomic((MyPaintSurface *)m_surface, &roi);
+    mypaint_surface_end_atomic(surface, &roi);
 }
 
 void
@@ -155,12 +182,12 @@ MPHandler::startStroke()
 }
 
 void
-MPHandler::strokeTo(float x, float y)
+MPHandler::strokeTo(double x, double y)
 {
     float pressure = 1.0;
     float xtilt = 0.0;
     float ytilt = 0.0;
-    strokeTo(x, y, pressure, xtilt, ytilt);
+    strokeTo(x, y, pressure, xtilt, ytilt, 1.0);
 }
 
 void

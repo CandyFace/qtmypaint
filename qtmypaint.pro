@@ -3,7 +3,7 @@ TEMPLATE = subdirs
 SUBDIRS = json-c \
           libmypaint \
           src \
-          demo
+#          demo
 
 libmypaint.depends = json-c
 src.depends = libmypaint

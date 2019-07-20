@@ -9,9 +9,8 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include <QGraphicsItem>
 #include <QImage>
-#include <QPainter>
+#include <QPixmap>
 #include <stdint.h>
 
 //-------------------------------------------------------------------------
@@ -25,35 +24,40 @@
 #define CONV_16_8(x) ((x*255)/(1<<15))
 #define CONV_8_16(x) ((x*(1<<15))/255)
 
-class MPTile : public QGraphicsItem
+class MPTile
 {
 public:
 
-    MPTile (QGraphicsItem * parent = NULL);
+    explicit MPTile (const MPTile* parent = nullptr);
+    explicit MPTile (QPixmap& pixmap);
     ~MPTile();
 
     enum { k_tile_dim = 64 };
     enum { k_red = 0, k_green = 1, k_blue = 2, k_alpha =3 }; // Index to access RGBA values in myPaint
 
-    QImage image();
+    QPixmap pixmap() { return m_cache_pix; }
 
-    virtual QRectF       boundingRect () const;
-//    virtual bool         contains  (const QPointF & point) const;
-    virtual QPainterPath shape     () const;
-    virtual void         paint     (QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
+    QRectF boundingRect () const;
 
     uint16_t* Bits (bool readOnly);
     void drawPoint ( uint x, uint y, uint16_t r, uint16_t g, uint16_t b, uint16_t a );
     void updateCache();
     void clear();
-    void setImage(const QImage &image);
+    void setPixmap(const QPixmap& image);
+
+    bool isDirty() { return m_dirty; }
+    void setDirty(bool dirty) { m_dirty = dirty; }
+    void setPos(const QPointF& pos) { m_pos = pos; }
+    QPointF pos() const { return m_pos; }
 
 private:
 
     uint16_t  t_pixels [k_tile_dim][k_tile_dim][4];
     QImage    m_cache_img;
+    QPixmap m_cache_pix;
     bool      m_cache_valid;
+    bool m_dirty = false;
+    QPointF m_pos;
 };
 
 #endif // TILE_H
