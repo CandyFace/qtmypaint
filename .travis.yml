@@ -1,0 +1,89 @@
+# Travis-CI configuration file for SuperTuxKart modified by CandyFace for Pencil2D
+#
+# Configuration manual:
+# http://docs.travis-ci.com/user/build-configuration/
+#
+# How to use TravisCI with C++ (Qt Test, C++11):
+# https://github.com/richelbilderbeek/travis_qmake_gcc_cpp11_qt_qtests
+#
+language: cpp
+compiler: g++
+sudo: required
+dist: trusty
+osx_sdk: macosx10.12
+os:
+  - linux
+  - osx
+
+python:
+  - "3.4"
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - ubuntu-sdk-team
+      - trusty-media
+      - sourceline: 'ppa:beineri/opt-qt591-trusty'
+    packages:
+      - build-essential
+      - qt59tools
+      - qt59base
+      - python3
+      - python3-pip
+
+before_install:
+  - |
+    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+        brew update;
+        ver=$(python -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/');
+        python -V
+        if [ "$ver" -le "27" ]; then
+            brew upgrade python;
+        fi
+        brew install p7zip;
+        brew install qt;
+        brew link qt --force;
+    fi
+
+install:
+  - pip3 freeze > requirements.txt
+  - pip3 install -r requirements.txt
+  - sudo pip3 install --upgrade oauth2client
+  - sudo pip3 install --upgrade google-api-python-client
+  - python3 -V
+  - pip3 -V
+
+before_script:
+
+
+script:
+  - mkdir "build" && cd build
+  - qmake ../ CONFIG+=release
+  - make
+
+env:
+  global: 
+    secure: XXYLS56gC/wIQ6uY+DyEkDKSV8hKocWLjMFXw7zKMYrMn46Dfbauw4m2d04BwJE91fUZ9iJPUya8Hv6lfU/dqiTHG5Zn4hEg9dmqA9tQw9J3FLkYqBfbfzcYoANI5fxwS0UME+FF7OZBOaMvvtlw1PJuJqxW6gXbZ3WWBnf0NjXDs345d18KSqLBCeoiamp9ugX3Fut5OoUUu8PkfO8dmnZ3g1DL8v7oZ5mhrpXjFd5ykbSl2cK9xTT/XeW6oL1YXopcqBLaeoj7dj0YoeXripw3vik+/Sf+P6B1jtW7k+i5AsUvZ2mwlGvFBl2B3x+YpuEd5pN15J9xD7I64vWmXcuG9ZfT8c+vJuVoKYO6LiZugsU0JQ6aZBGZfPOr62gyjKKZyc1LcQPW6VQ+nijqMqkdtbz5Xh0D/RUVzYcnKjgb0Ht1E0O3BTEz6QBlrroA7oFjhnWhd9apQAJtQVCjzXFdXHRHnQEk+WAmaU927w+dKqWdklNtKGeTdnIbTRuLGyNdpDcpWD+7fx6/diNZExU7JSPiqbSdMN9FZlmT3BrbdrFwfrTVPjWyfxvYb/9S/iIHwF8lbf3pvVe3/mmhz4Wr/ZkwzVONiYzwif3anPx1wVLv5tMa4AIAJaer1aiAIHzBp7r1mTuFIr7ST0XmkR9DraKgfAu/IxDiUPmzfNk=
+
+after_success:
+  - 7z a -r qtmypaint-${TRAVIS_OS_NAME}.zip ${TRAVIS_BUILD_DIR}/src*.a;
+
+before_deploy:
+  - export RELEASE_PKG_FILE=$(ls $TRAVIS_BUILD_DIR/*.zip)
+  - echo "deploying $RELEASE_PKG_FILE to GitHub releases"
+
+  # Set up git user name and tag this commit
+  - git config --local user.name "TRAVIS_CI"
+  - git config --local user.email ""
+  - export TRAVIS_TAG="qtmypaint-${TRAVIS_BRANCH}"
+  - git tag $TRAVIS_TAG
+deploy:
+  provider: releases
+  api_key: "$GITHUB_TOKEN"
+  file_glob: true
+  file: ${RELEASE_PKG_FILE}
+  skip_cleanup: true
+  draft: true
+  on:
+    all_branches: true
