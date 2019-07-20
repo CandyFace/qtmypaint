@@ -14,33 +14,30 @@ SOURCES += mpbrush.cpp \
            mpsurface.cpp \
            mptile.cpp
 
-LIBS += -L../json-c -ljson-c
-LIBS += -L../libmypaint -llibmypaint
+# json-c
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../json-c/release/ -ljson-c
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../json-c/debug/ -ljson-c
+else:unix: LIBS += -L$$OUT_PWD/../json-c/ -ljson-c
 
-# --- json-c ---
-win32:CONFIG(release, debug|release): LIBS += -L../json-c/release/ -ljson-c
-else:win32:CONFIG(debug, debug|release): LIBS += -L../json-c/debug/ -ljson-c
-else:unix: LIBS += -L../json-c -ljson-c
+INCLUDEPATH += $$PWD/../json-c
+DEPENDPATH += $$PWD/../json-c
 
-INCLUDEPATH += ../json-c
-DEPENDPATH += ../json-c
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../json-c/release/libjson-c.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../json-c/debug/libjson-c.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../json-c/release/json-c.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../json-c/debug/json-c.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../json-c/libjson-c.a
 
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += ../json-c/release/libjson-c.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += ../json-c/debug/libjson-c.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += ../json-c/release/json-c.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += ../json-c/debug/json-c.lib
-else:unix: PRE_TARGETDEPS += ../json-c/libjson-c.a
+# libmypaint
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../libmypaint/release/ -llibmypaint
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../libmypaint/debug/ -llibmypaint
+else:unix: LIBS += -L$$OUT_PWD/../libmypaint/ -llibmypaint
 
-# --- libmypaint ---
-win32:CONFIG(release, debug|release): LIBS += -L../libmypaint/release/ -llibmypaint
-else:win32:CONFIG(debug, debug|release): LIBS += -L../libmypaint/debug/ -llibmypaint
-else:unix: LIBS += -L../libmypaint -llibmypaint
+INCLUDEPATH += $$PWD/../libmypaint
+DEPENDPATH += $$PWD/../libmypaint
 
-INCLUDEPATH += ../libmypaint
-DEPENDPATH += ../libmypaint
-
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += ../libmypaint/release/liblibmypaint.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += ../libmypaint/debug/liblibmypaint.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += ../libmypaint/release/libmypaint.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += ../libmypaint/debug/libmypaint.lib
-else:unix: PRE_TARGETDEPS += ../libmypaint/liblibmypaint.a
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libmypaint/release/liblibmypaint.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libmypaint/debug/liblibmypaint.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libmypaint/release/libmypaint.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../libmypaint/debug/libmypaint.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../libmypaint/liblibmypaint.a

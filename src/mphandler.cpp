@@ -26,12 +26,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "mphandler.h"
 
-#include "mypaint-brush.h"
-#include "mypaint-surface.h"
-
+extern "C" {
 #include "libmypaint.c"
+}
 
-#define HAVE_JSON_C;
+#define HAVE_JSON_C
 
 #define DEFAULT_BRUSHES_PATH ":brushes"
 

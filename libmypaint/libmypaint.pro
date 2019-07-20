@@ -1,5 +1,3 @@
-QT += core gui widgets
-
 TARGET = libmypaint
 TEMPLATE = lib
 CONFIG += staticlib

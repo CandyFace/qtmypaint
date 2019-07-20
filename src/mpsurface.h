@@ -37,8 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QGraphicsScene>
 #include <QImage>
 
+extern "C" {
 #include "mypaint-glib-compat.h"
 #include "mypaint-tiled-surface.h"
+}
 #include "mpbrush.h"
 #include "mptile.h"
 

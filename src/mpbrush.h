@@ -29,8 +29,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <QColor>
 
+extern "C" {
 #include "mypaint-brush.h"
-
+}
 
 class MPBrush
 {

@@ -29,8 +29,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <QColor>
 
+extern "C" {
 #include "mypaint-brush.h"
 #include "mypaint-surface.h"
+}
 
 #include "mpbrush.h"
 #include "mpsurface.h"
